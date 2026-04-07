@@ -144,3 +144,40 @@ function bpRingSVG(systolic, target = 120) {
         </div>
     </div>`;
 }
+
+// Animated bar helper
+function animBar(pct, color, delay = 0) {
+    return `<div class="bar-track">
+        <div class="bar-fill" style="width:${Math.min(pct, 100)}%;background:${color};animation-delay:${delay}s"></div>
+    </div>`;
+}
+
+// Floating particles
+function initParticles() {
+    const container = document.createElement('div');
+    container.className = 'particles';
+    const colors = [
+        'rgba(167, 139, 250, 0.25)',
+        'rgba(129, 230, 217, 0.2)',
+        'rgba(251, 191, 36, 0.15)',
+        'rgba(147, 197, 253, 0.25)',
+        'rgba(196, 181, 253, 0.2)',
+        'rgba(167, 243, 208, 0.18)',
+    ];
+    for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = 4 + Math.random() * 14;
+        p.style.cssText = `
+            width: ${size}px; height: ${size}px;
+            left: ${Math.random() * 100}%;
+            background: ${colors[i % colors.length]};
+            animation-duration: ${15 + Math.random() * 25}s;
+            animation-delay: ${-Math.random() * 30}s;
+        `;
+        container.appendChild(p);
+    }
+    document.body.prepend(container);
+}
+
+document.addEventListener('DOMContentLoaded', initParticles);

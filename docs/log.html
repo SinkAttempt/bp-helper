@@ -91,7 +91,13 @@
         DB.addReading(sys, dia, pulse, notes);
         const bp = classifyBP(parseInt(sys), parseInt(dia));
         showFlash(`Logged ${sys}/${dia} — ${bp.label}`);
-        setTimeout(() => window.location.href = 'index.html', 800);
+
+        // Button success state
+        const btn = document.querySelector('[type=submit]');
+        btn.style.background = 'linear-gradient(135deg, #4ade80, #34d399)';
+        btn.style.boxShadow = '0 4px 20px rgba(74, 222, 128, 0.4)';
+        btn.textContent = 'Saved!';
+        setTimeout(() => window.location.href = 'index.html', 1000);
     });
     </script>
 </body>

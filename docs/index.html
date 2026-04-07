@@ -64,26 +64,20 @@
                             <span class="macro-name">Systolic</span>
                             <span class="macro-val">${stats.avg_systolic} avg</span>
                         </div>
-                        <div style="height:6px;background:#e8ecf3;border-radius:3px;overflow:hidden">
-                            <div style="height:100%;width:${Math.min(stats.avg_systolic/180*100,100)}%;background:#ef4444;border-radius:3px"></div>
-                        </div>
+                        ${animBar(stats.avg_systolic/180*100, '#ef4444', 0.2)}
                         <div class="macro-row">
                             <span class="macro-dot" style="background:#3b82f6"></span>
                             <span class="macro-name">Diastolic</span>
                             <span class="macro-val">${stats.avg_diastolic} avg</span>
                         </div>
-                        <div style="height:6px;background:#e8ecf3;border-radius:3px;overflow:hidden">
-                            <div style="height:100%;width:${Math.min(stats.avg_diastolic/120*100,100)}%;background:#3b82f6;border-radius:3px"></div>
-                        </div>
+                        ${animBar(stats.avg_diastolic/120*100, '#3b82f6', 0.35)}
                         ${stats.avg_pulse ? `
                         <div class="macro-row">
                             <span class="macro-dot" style="background:#a855f7"></span>
                             <span class="macro-name">Pulse</span>
                             <span class="macro-val">${stats.avg_pulse} bpm</span>
                         </div>
-                        <div style="height:6px;background:#e8ecf3;border-radius:3px;overflow:hidden">
-                            <div style="height:100%;width:${Math.min(stats.avg_pulse/120*100,100)}%;background:#a855f7;border-radius:3px"></div>
-                        </div>` : ''}
+                        ${animBar(stats.avg_pulse/120*100, '#a855f7', 0.5)}` : ''}
                         <div class="macro-row">
                             <span class="macro-dot" style="background:${bp.color}"></span>
                             <span class="macro-name">Status</span>

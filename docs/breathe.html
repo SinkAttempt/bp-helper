@@ -166,6 +166,10 @@
         c.style.animation = '';
         c.style.background = 'rgba(91,141,239,0.12)';
         c.style.borderColor = 'rgba(91,141,239,0.25)';
+        c.style.boxShadow = '';
+        document.getElementById('progress-ring').style.stroke = '#5b8def';
+        const panel = document.getElementById('complete-panel');
+        panel.classList.remove('celebrate');
     }
 
     function sleep(ms, signal) {
@@ -210,14 +214,46 @@
         DB.addSession(ex.name, secs);
         running = false;
         document.getElementById('start-btn').style.display = 'none';
-        document.getElementById('complete-panel').style.display = '';
+        const panel = document.getElementById('complete-panel');
+        panel.style.display = '';
+        panel.classList.add('celebrate');
         document.getElementById('phase-text').textContent = 'Done';
         document.getElementById('timer-text').textContent = '';
         document.getElementById('status-text').textContent = `${Math.round(secs/60)} min session`;
         document.getElementById('progress-ring').style.strokeDashoffset = 0;
+        document.getElementById('progress-ring').style.stroke = '#4ade80';
         circle.style.animation = '';
-        circle.style.background = 'rgba(34,197,94,0.12)';
-        circle.style.borderColor = 'rgba(34,197,94,0.25)';
+        circle.style.background = 'rgba(34,197,94,0.15)';
+        circle.style.borderColor = 'rgba(34,197,94,0.35)';
+        circle.style.boxShadow = '0 0 50px rgba(34,197,94,0.2)';
+
+        // Spawn celebration particles
+        for (let i = 0; i < 12; i++) {
+            const p = document.createElement('div');
+            const size = 6 + Math.random() * 10;
+            const angle = (Math.PI * 2 / 12) * i;
+            const dist = 80 + Math.random() * 60;
+            p.style.cssText = `
+                position: fixed; width: ${size}px; height: ${size}px; border-radius: 50%;
+                background: hsl(${120 + Math.random() * 60}, 70%, 65%);
+                left: 50%; top: 40%;
+                pointer-events: none; z-index: 100;
+                animation: celebParticle 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+                --dx: ${Math.cos(angle) * dist}px; --dy: ${Math.sin(angle) * dist}px;
+            `;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 1500);
+        }
+        // Inject keyframe if not done
+        if (!document.getElementById('celeb-style')) {
+            const s = document.createElement('style');
+            s.id = 'celeb-style';
+            s.textContent = `@keyframes celebParticle {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+                100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); opacity: 0; }
+            }`;
+            document.head.appendChild(s);
+        }
     }
 
     document.getElementById('start-btn').addEventListener('click', function() {
