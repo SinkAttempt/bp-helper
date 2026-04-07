@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}BP Helper — Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+    <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold">BP Helper</h1>
+        <span class="text-xs text-gray-500">{{ stats.total or 0 }} readings</span>
+    </div>
+
+    {% if stats.total and stats.total > 0 %}
+    <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+        <div class="text-xs text-gray-500 uppercase tracking-wider mb-3">Average BP</div>
+        <div class="flex items-baseline gap-2">
+            <span class="text-4xl font-bold tabular-nums">{{ stats.avg_systolic|int }}</span>
+            <span class="text-2xl text-gray-500">/</span>
+            <span class="text-4xl font-bold tabular-nums">{{ stats.avg_diastolic|int }}</span>
+            <span class="text-sm text-gray-500 ml-1">mmHg</span>
+        </div>
+        {% if stats.avg_pulse %}
+        <div class="mt-2 text-sm text-gray-400">
+            Avg pulse: <span class="text-white font-medium">{{ stats.avg_pulse|int }}</span> bpm
+        </div>
+        {% endif %}
+    </div>
+
+    {% if trend|length > 1 %}
+    <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+        <div class="text-xs text-gray-500 uppercase tracking-wider mb-3">7-Day Trend</div>
+        <canvas id="trendChart" height="140"></canvas>
+    </div>
+    {% endif %}
+
+    <div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Recent Readings</div>
+        <div class="space-y-2">
+        {% for r in readings[:5] %}
+            <div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 flex items-center justify-between">
+                <div>
+                    <span class="text-lg font-semibold tabular-nums">{{ r.systolic }}/{{ r.diastolic }}</span>
+                    {% if r.pulse %}<span class="text-sm text-gray-500 ml-2">{{ r.pulse }} bpm</span>{% endif %}
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full" style="background: {{ r.bp_color }}20; color: {{ r.bp_color }}">{{ r.bp_label }}</span>
+                    <span class="text-xs text-gray-600">{{ r.created_at[:10] }}</span>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center">
+        <div class="text-4xl mb-3">&#129657;</div>
+        <h2 class="text-lg font-semibold mb-1">No readings yet</h2>
+        <p class="text-sm text-gray-400 mb-4">Log your first blood pressure reading to get started.</p>
+        <a href="{{ url_for('main.log_bp') }}" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition">
+            Log BP Reading
+        </a>
+    </div>
+    {% endif %}
+
+    {% if sessions %}
+    <div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Recent Breathing Sessions</div>
+        <div class="space-y-2">
+        {% for s in sessions[:3] %}
+            <div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 flex items-center justify-between">
+                <div>
+                    <span class="text-sm font-medium">{{ s.exercise_type }}</span>
+                    <span class="text-xs text-gray-500 ml-2">{{ (s.duration_seconds / 60)|round(1) }} min</span>
+                </div>
+                {% if s.pre_pulse and s.post_pulse %}
+                <div class="text-xs">
+                    <span class="text-gray-500">{{ s.pre_pulse }}</span>
+                    <span class="text-gray-600 mx-1">&rarr;</span>
+                    <span class="{% if s.post_pulse < s.pre_pulse %}text-green-400{% else %}text-gray-400{% endif %}">{{ s.post_pulse }}</span>
+                    <span class="text-gray-600 ml-0.5">bpm</span>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-2xl p-5 border border-indigo-800/30">
+        <div class="text-sm font-medium mb-1">Quick Breathe</div>
+        <p class="text-xs text-gray-400 mb-3">6 breaths/min proven to lower BP</p>
+        <a href="{{ url_for('main.breathe', exercise_id='slow-bp') }}" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition">
+            Start Session
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if trend|length > 1 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+const trend = {{ trend|tojson }};
+new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+        labels: trend.map(t => t.date.slice(5)),
+        datasets: [{
+            label: 'Systolic',
+            data: trend.map(t => t.avg_systolic),
+            borderColor: '#ef4444',
+            backgroundColor: '#ef444420',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 3
+        }, {
+            label: 'Diastolic',
+            data: trend.map(t => t.avg_diastolic),
+            borderColor: '#3b82f6',
+            backgroundColor: '#3b82f620',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: true, labels: { color: '#9ca3af', boxWidth: 12, font: { size: 11 } } } },
+        scales: {
+            x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#1f2937' } },
+            y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#1f2937' }, suggestedMin: 60, suggestedMax: 160 }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

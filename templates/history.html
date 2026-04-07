@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}History — BP Helper{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <h1 class="text-xl font-bold">History</h1>
+
+    <div>
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-gray-500 uppercase tracking-wider">BP Readings</span>
+            <span class="text-xs text-gray-600">{{ readings|length }} total</span>
+        </div>
+
+        {% if readings %}
+        <div class="space-y-2">
+        {% for r in readings %}
+            <div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-lg font-semibold tabular-nums">{{ r.systolic }}/{{ r.diastolic }}</span>
+                        {% if r.pulse %}<span class="text-sm text-gray-500 ml-2">{{ r.pulse }} bpm</span>{% endif %}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full" style="background: {{ r.bp_color }}20; color: {{ r.bp_color }}">{{ r.bp_label }}</span>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-1">
+                    {% if r.notes %}<span class="text-xs text-gray-500">{{ r.notes }}</span>{% endif %}
+                    <span class="text-xs text-gray-600 ml-auto">{{ r.created_at[:16] }}</span>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 text-center text-sm text-gray-500">
+            No readings yet. <a href="{{ url_for('main.log_bp') }}" class="text-indigo-400">Log your first.</a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if sessions %}
+    <div>
+        <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Breathing Sessions</div>
+        <div class="space-y-2">
+        {% for s in sessions %}
+            <div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 flex items-center justify-between">
+                <div>
+                    <span class="text-sm font-medium">{{ s.exercise_type }}</span>
+                    <span class="text-xs text-gray-500 ml-2">{{ (s.duration_seconds / 60)|round(1) }} min</span>
+                </div>
+                <span class="text-xs text-gray-600">{{ s.created_at[:16] }}</span>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

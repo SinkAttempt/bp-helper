@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>BP Helper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: {
+                bp: { low: '#3b82f6', normal: '#22c55e', elevated: '#eab308', high1: '#f97316', high2: '#ef4444' }
+            }}}
+        }
+    </script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+        .nav-item.active { color: #6366f1; }
+        .nav-item.active svg { stroke: #6366f1; }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen flex flex-col">
+    <main class="flex-1 pb-20 px-4 pt-4 max-w-lg mx-auto w-full">
+        <div id="flash" class="hidden"></div>
+        <div id="content" class="space-y-5"></div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 safe-bottom z-50">
+        <div class="max-w-lg mx-auto flex justify-around py-2">
+            <a href="index.html" class="nav-item active flex flex-col items-center gap-0.5 px-3 py-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                <span class="text-xs">Home</span>
+            </a>
+            <a href="log.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                <span class="text-xs">Log BP</span>
+            </a>
+            <a href="breathe.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
+                <span class="text-xs">Breathe</span>
+            </a>
+            <a href="history.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-xs">History</span>
+            </a>
+        </div>
+    </nav>
+
+    <script src="js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script>
+    function render() {
+        const stats = DB.getStats();
+        const readings = DB.getReadings(10);
+        const sessions = DB.getSessions(5);
+        const trend = DB.getTrend(7);
+        const el = document.getElementById('content');
+
+        let html = '<div class="flex items-center justify-between"><h1 class="text-xl font-bold">BP Helper</h1>';
+        html += `<span class="text-xs text-gray-500">${stats ? stats.total : 0} readings</span></div>`;
+
+        if (stats) {
+            html += `<div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+                <div class="text-xs text-gray-500 uppercase tracking-wider mb-3">Average BP</div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl font-bold tabular-nums">${stats.avg_systolic}</span>
+                    <span class="text-2xl text-gray-500">/</span>
+                    <span class="text-4xl font-bold tabular-nums">${stats.avg_diastolic}</span>
+                    <span class="text-sm text-gray-500 ml-1">mmHg</span>
+                </div>
+                ${stats.avg_pulse ? `<div class="mt-2 text-sm text-gray-400">Avg pulse: <span class="text-white font-medium">${stats.avg_pulse}</span> bpm</div>` : ''}
+            </div>`;
+
+            if (trend.length > 1) {
+                html += `<div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-3">7-Day Trend</div>
+                    <canvas id="trendChart" height="140"></canvas>
+                </div>`;
+            }
+
+            html += '<div><div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Recent Readings</div><div class="space-y-2">';
+            for (const r of readings.slice(0, 5)) {
+                const bp = classifyBP(r.systolic, r.diastolic);
+                html += `<div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 flex items-center justify-between">
+                    <div><span class="text-lg font-semibold tabular-nums">${r.systolic}/${r.diastolic}</span>
+                    ${r.pulse ? `<span class="text-sm text-gray-500 ml-2">${r.pulse} bpm</span>` : ''}</div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full" style="background:${bp.color}20;color:${bp.color}">${bp.label}</span>
+                        <span class="text-xs text-gray-600">${fmtDateShort(r.created_at)}</span>
+                    </div></div>`;
+            }
+            html += '</div></div>';
+        } else {
+            html += `<div class="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center">
+                <div class="text-4xl mb-3">&#129657;</div>
+                <h2 class="text-lg font-semibold mb-1">No readings yet</h2>
+                <p class="text-sm text-gray-400 mb-4">Log your first blood pressure reading to get started.</p>
+                <a href="log.html" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition">Log BP Reading</a>
+            </div>`;
+        }
+
+        if (sessions.length) {
+            html += '<div><div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Recent Breathing Sessions</div><div class="space-y-2">';
+            for (const s of sessions.slice(0, 3)) {
+                html += `<div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 flex items-center justify-between">
+                    <div><span class="text-sm font-medium">${s.exercise_type}</span>
+                    <span class="text-xs text-gray-500 ml-2">${(s.duration_seconds/60).toFixed(1)} min</span></div>
+                    <span class="text-xs text-gray-600">${fmtDateShort(s.created_at)}</span></div>`;
+            }
+            html += '</div></div>';
+        }
+
+        html += `<div class="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-2xl p-5 border border-indigo-800/30">
+            <div class="text-sm font-medium mb-1">Quick Breathe</div>
+            <p class="text-xs text-gray-400 mb-3">6 breaths/min proven to lower BP</p>
+            <a href="breathe.html?ex=slow-bp" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition">Start Session</a>
+        </div>`;
+
+        el.innerHTML = html;
+
+        // Render chart
+        if (trend.length > 1) {
+            const ctx = document.getElementById('trendChart');
+            if (ctx) new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trend.map(t => t.date.slice(5)),
+                    datasets: [{
+                        label: 'Systolic', data: trend.map(t => t.avg_systolic),
+                        borderColor: '#ef4444', backgroundColor: '#ef444420', tension: 0.3, fill: true, pointRadius: 3
+                    }, {
+                        label: 'Diastolic', data: trend.map(t => t.avg_diastolic),
+                        borderColor: '#3b82f6', backgroundColor: '#3b82f620', tension: 0.3, fill: true, pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#9ca3af', boxWidth: 12, font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#1f2937' } },
+                        y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#1f2937' }, suggestedMin: 60, suggestedMax: 160 }
+                    }
+                }
+            });
+        }
+    }
+    render();
+    </script>
+</body>
+</html>

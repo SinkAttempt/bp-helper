@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Log BP — BP Helper{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <h1 class="text-xl font-bold">Log Reading</h1>
+
+    <form method="POST" class="space-y-4">
+        <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Systolic</label>
+                    <input type="number" name="systolic" required min="40" max="300"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-2xl font-bold text-center tabular-nums focus:outline-none focus:border-indigo-500 transition"
+                        placeholder="120" inputmode="numeric">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Diastolic</label>
+                    <input type="number" name="diastolic" required min="20" max="200"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-2xl font-bold text-center tabular-nums focus:outline-none focus:border-indigo-500 transition"
+                        placeholder="80" inputmode="numeric">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Pulse (optional)</label>
+                <input type="number" name="pulse" min="30" max="250"
+                    class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-lg text-center tabular-nums focus:outline-none focus:border-indigo-500 transition"
+                    placeholder="72" inputmode="numeric">
+            </div>
+
+            <div>
+                <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Notes (optional)</label>
+                <input type="text" name="notes" maxlength="200"
+                    class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition"
+                    placeholder="e.g. after morning walk">
+            </div>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 rounded-xl font-medium transition active:scale-[0.98]">
+            Save Reading
+        </button>
+    </form>
+
+    <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50">
+        <div class="text-xs text-gray-500 font-medium mb-2">BP Categories (AHA)</div>
+        <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between"><span class="text-bp-normal">Normal</span><span class="text-gray-400">&lt;120 / &lt;80</span></div>
+            <div class="flex justify-between"><span class="text-bp-elevated">Elevated</span><span class="text-gray-400">120-129 / &lt;80</span></div>
+            <div class="flex justify-between"><span class="text-bp-high1">High Stage 1</span><span class="text-gray-400">130-139 / 80-89</span></div>
+            <div class="flex justify-between"><span class="text-bp-high2">High Stage 2</span><span class="text-gray-400">&ge;140 / &ge;90</span></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

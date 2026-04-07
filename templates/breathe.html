@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}{{ exercise.name }} — BP Helper{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[70vh] space-y-6" id="breathe-app">
+
+    <div class="text-center">
+        <h1 class="text-lg font-bold">{{ exercise.name }}</h1>
+        <p class="text-xs text-gray-500 mt-1" id="status-text">Tap to begin</p>
+    </div>
+
+    <div class="relative flex items-center justify-center" style="width: 260px; height: 260px;">
+        <svg class="absolute inset-0" viewBox="0 0 260 260">
+            <circle cx="130" cy="130" r="120" fill="none" stroke="#1f2937" stroke-width="4"/>
+            <circle id="progress-ring" cx="130" cy="130" r="120" fill="none" stroke="#6366f1"
+                stroke-width="4" stroke-linecap="round"
+                stroke-dasharray="754" stroke-dashoffset="754"
+                transform="rotate(-90 130 130)" style="transition: stroke-dashoffset 0.3s linear;"/>
+        </svg>
+
+        <div id="breathe-circle"
+             class="w-40 h-40 rounded-full bg-indigo-600/20 border-2 border-indigo-500/40 flex items-center justify-center transition-all duration-300"
+             style="--inhale-duration: {{ exercise.inhale }}s; --exhale-duration: {{ exercise.exhale }}s; --hold-duration: {{ exercise.hold or 0 }}s;">
+            <div class="text-center">
+                <div id="phase-text" class="text-2xl font-bold">Ready</div>
+                <div id="timer-text" class="text-4xl font-bold tabular-nums mt-1">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center text-sm text-gray-500 tabular-nums">
+        Cycle <span id="cycle-current">0</span> / <span id="cycle-total">{{ exercise.cycles }}</span>
+    </div>
+
+    <button id="start-btn" onclick="toggleBreathing()"
+        class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-3 rounded-xl font-medium transition active:scale-[0.98]">
+        Start
+    </button>
+
+    <div id="complete-panel" class="hidden text-center space-y-4">
+        <div class="text-2xl font-bold text-green-400">Session Complete</div>
+        <p class="text-sm text-gray-400">Great work. Consistent practice lowers BP over time.</p>
+        <div class="flex gap-3 justify-center">
+            <a href="{{ url_for('main.breathe', exercise_id=exercise_id) }}"
+               class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2.5 rounded-xl text-sm transition">Again</a>
+            <a href="{{ url_for('main.breathe_list') }}"
+               class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm transition">Exercises</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const EX = {{ exercise|tojson }};
+const EX_ID = "{{ exercise_id }}";
+const PHASES = [];
+
+// Build phase sequence
+(function buildPhases() {
+    PHASES.push({ name: "Breathe In", duration: EX.inhale, anim: "breathe-in" });
+    if (EX.hold && EX.hold > 0) PHASES.push({ name: "Hold", duration: EX.hold, anim: "breathe-hold" });
+    PHASES.push({ name: "Breathe Out", duration: EX.exhale, anim: "breathe-out" });
+    if (EX.hold2 && EX.hold2 > 0) PHASES.push({ name: "Hold", duration: EX.hold2, anim: "breathe-hold" });
+})();
+
+let running = false;
+let paused = false;
+let currentCycle = 0;
+let abortController = null;
+
+const circle = document.getElementById("breathe-circle");
+const phaseText = document.getElementById("phase-text");
+const timerText = document.getElementById("timer-text");
+const statusText = document.getElementById("status-text");
+const cycleEl = document.getElementById("cycle-current");
+const btn = document.getElementById("start-btn");
+const progressRing = document.getElementById("progress-ring");
+const completePanel = document.getElementById("complete-panel");
+const CIRCUMFERENCE = 2 * Math.PI * 120;
+
+function sleep(ms, signal) {
+    return new Promise((resolve, reject) => {
+        const id = setTimeout(resolve, ms);
+        if (signal) signal.addEventListener("abort", () => { clearTimeout(id); reject(new DOMException("Aborted", "AbortError")); });
+    });
+}
+
+function updateProgress(cycle, phaseIdx, elapsed, phaseDuration) {
+    const totalPhaseTime = PHASES.reduce((s, p) => s + p.duration, 0);
+    const totalTime = totalPhaseTime * EX.cycles;
+    const completedTime = (cycle * totalPhaseTime) + PHASES.slice(0, phaseIdx).reduce((s, p) => s + p.duration, 0) + elapsed;
+    const pct = completedTime / totalTime;
+    progressRing.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+}
+
+async function runBreathing(signal) {
+    const startTime = Date.now();
+
+    for (let c = 0; c < EX.cycles; c++) {
+        currentCycle = c + 1;
+        cycleEl.textContent = currentCycle;
+
+        for (let p = 0; p < PHASES.length; p++) {
+            const phase = PHASES[p];
+            phaseText.textContent = phase.name;
+            circle.className = "w-40 h-40 rounded-full bg-indigo-600/20 border-2 border-indigo-500/40 flex items-center justify-center " + phase.anim;
+
+            for (let s = phase.duration; s > 0; s--) {
+                timerText.textContent = s;
+                updateProgress(c, p, phase.duration - s, phase.duration);
+                await sleep(1000, signal);
+            }
+            updateProgress(c, p + 1, 0, 0);
+        }
+    }
+
+    const totalSeconds = Math.round((Date.now() - startTime) / 1000);
+
+    // Log session
+    fetch("/api/breathing-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exercise_type: EX.name, duration_seconds: totalSeconds })
+    });
+
+    // Show complete
+    running = false;
+    btn.classList.add("hidden");
+    circle.className = "w-40 h-40 rounded-full bg-green-600/20 border-2 border-green-500/40 flex items-center justify-center";
+    phaseText.textContent = "Done";
+    timerText.textContent = "";
+    statusText.textContent = `${Math.round(totalSeconds / 60)} min session`;
+    progressRing.style.strokeDashoffset = 0;
+    completePanel.classList.remove("hidden");
+}
+
+function toggleBreathing() {
+    if (running) {
+        // Stop
+        running = false;
+        if (abortController) abortController.abort();
+        btn.textContent = "Start";
+        phaseText.textContent = "Ready";
+        timerText.textContent = "0";
+        statusText.textContent = "Tap to begin";
+        cycleEl.textContent = "0";
+        circle.className = "w-40 h-40 rounded-full bg-indigo-600/20 border-2 border-indigo-500/40 flex items-center justify-center";
+        progressRing.style.strokeDashoffset = CIRCUMFERENCE;
+        return;
+    }
+
+    running = true;
+    btn.textContent = "Stop";
+    statusText.textContent = "Follow the circle";
+    completePanel.classList.add("hidden");
+    btn.classList.remove("hidden");
+    abortController = new AbortController();
+
+    runBreathing(abortController.signal).catch(e => {
+        if (e.name !== "AbortError") console.error(e);
+    });
+}
+</script>
+{% endblock %}

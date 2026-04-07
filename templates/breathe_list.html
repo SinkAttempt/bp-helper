@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Breathing Exercises — BP Helper{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <div>
+        <h1 class="text-xl font-bold">Breathing Exercises</h1>
+        <p class="text-sm text-gray-400 mt-1">Clinically proven techniques to lower blood pressure</p>
+    </div>
+
+    <div class="space-y-3">
+    {% for id, ex in exercises.items() %}
+        <a href="{{ url_for('main.breathe', exercise_id=id) }}"
+           class="block bg-gray-900 rounded-2xl p-4 border border-gray-800 hover:border-gray-700 transition active:scale-[0.99]">
+            <div class="flex items-center justify-between mb-1">
+                <span class="font-medium">{{ ex.name }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full
+                    {% if ex.category == 'bp-reduction' %}bg-red-900/40 text-red-400
+                    {% elif ex.category == 'relaxation' %}bg-purple-900/40 text-purple-400
+                    {% elif ex.category == 'focus' %}bg-blue-900/40 text-blue-400
+                    {% elif ex.category == 'hrv' %}bg-green-900/40 text-green-400
+                    {% endif %}">
+                    {{ ex.category|replace('-', ' ')|title }}
+                </span>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">{{ ex.description }}</p>
+            <div class="mt-2 flex gap-3 text-xs text-gray-500">
+                <span>In: {{ ex.inhale }}s</span>
+                {% if ex.hold %}<span>Hold: {{ ex.hold }}s</span>{% endif %}
+                <span>Out: {{ ex.exhale }}s</span>
+                <span>&middot; {{ ex.cycles }} cycles</span>
+            </div>
+        </a>
+    {% endfor %}
+    </div>
+
+    <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50 text-xs text-gray-500 leading-relaxed">
+        <strong class="text-gray-400">Science note:</strong> Slow breathing at ~6 breaths/min activates the baroreflex,
+        increasing vagal tone and reducing sympathetic nervous system activity. Multiple clinical trials show
+        5-10 mmHg systolic BP reduction with regular practice.
+    </div>
+</div>
+{% endblock %}
