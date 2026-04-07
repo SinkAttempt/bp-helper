@@ -5,83 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Log BP — BP Helper</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
-        .nav-item.active { color: #6366f1; }
-        .nav-item.active svg { stroke: #6366f1; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex flex-col">
-    <main class="flex-1 pb-20 px-4 pt-4 max-w-lg mx-auto w-full">
-        <div id="flash" class="hidden"></div>
-        <div class="space-y-5">
-            <h1 class="text-xl font-bold">Log Reading</h1>
+<body>
+    <main>
+        <div id="flash" style="display:none"></div>
+        <div class="space-y">
+            <h1 style="font-size:22px;font-weight:700">Log Reading</h1>
 
-            <form id="bp-form" class="space-y-4">
-                <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800 space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+            <form id="bp-form" class="space-y">
+                <div class="card space-y">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Systolic</label>
+                            <label style="display:block;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;font-weight:600">Systolic</label>
                             <input type="number" id="systolic" required min="40" max="300"
-                                class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-2xl font-bold text-center tabular-nums focus:outline-none focus:border-indigo-500 transition"
-                                placeholder="120" inputmode="numeric">
+                                class="input-field input-big" placeholder="120" inputmode="numeric">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Diastolic</label>
+                            <label style="display:block;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;font-weight:600">Diastolic</label>
                             <input type="number" id="diastolic" required min="20" max="200"
-                                class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-2xl font-bold text-center tabular-nums focus:outline-none focus:border-indigo-500 transition"
-                                placeholder="80" inputmode="numeric">
+                                class="input-field input-big" placeholder="80" inputmode="numeric">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Pulse (optional)</label>
+                        <label style="display:block;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;font-weight:600">Pulse (optional)</label>
                         <input type="number" id="pulse" min="30" max="250"
-                            class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-lg text-center tabular-nums focus:outline-none focus:border-indigo-500 transition"
-                            placeholder="72" inputmode="numeric">
+                            class="input-field" style="text-align:center;font-size:20px;font-weight:600" placeholder="72" inputmode="numeric">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1">Notes (optional)</label>
+                        <label style="display:block;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;font-weight:600">Notes (optional)</label>
                         <input type="text" id="notes" maxlength="200"
-                            class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition"
-                            placeholder="e.g. after morning walk">
+                            class="input-field" placeholder="e.g. after morning walk">
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 rounded-xl font-medium transition active:scale-[0.98]">
-                    Save Reading
-                </button>
+
+                <button type="submit" class="btn-accent">Save Reading</button>
             </form>
 
-            <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50">
-                <div class="text-xs text-gray-500 font-medium mb-2">BP Categories (AHA)</div>
-                <div class="space-y-1.5 text-xs">
-                    <div class="flex justify-between"><span style="color:#22c55e">Normal</span><span class="text-gray-400">&lt;120 / &lt;80</span></div>
-                    <div class="flex justify-between"><span style="color:#eab308">Elevated</span><span class="text-gray-400">120-129 / &lt;80</span></div>
-                    <div class="flex justify-between"><span style="color:#f97316">High Stage 1</span><span class="text-gray-400">130-139 / 80-89</span></div>
-                    <div class="flex justify-between"><span style="color:#ef4444">High Stage 2</span><span class="text-gray-400">&ge;140 / &ge;90</span></div>
+            <div class="card-sm" style="opacity:0.8">
+                <div style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px">BP Categories (AHA)</div>
+                <div class="space-y-sm" style="font-size:13px">
+                    <div style="display:flex;justify-content:space-between"><span style="color:#16a34a;font-weight:600">Normal</span><span class="text-muted">&lt;120 / &lt;80</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="color:#ca8a04;font-weight:600">Elevated</span><span class="text-muted">120-129 / &lt;80</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="color:#ea580c;font-weight:600">High Stage 1</span><span class="text-muted">130-139 / 80-89</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="color:#dc2626;font-weight:600">High Stage 2</span><span class="text-muted">&ge;140 / &ge;90</span></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 safe-bottom z-50">
-        <div class="max-w-lg mx-auto flex justify-around py-2">
-            <a href="index.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
-                <span class="text-xs">Home</span>
+    <a href="log.html" class="fab">+</a>
+
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                Home
             </a>
-            <a href="log.html" class="nav-item active flex flex-col items-center gap-0.5 px-3 py-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                <span class="text-xs">Log BP</span>
+            <a href="breathe.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
+                Breathe
             </a>
-            <a href="breathe.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
-                <span class="text-xs">Breathe</span>
+            <span class="nav-item" style="width:56px"></span>
+            <a href="history.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                History
             </a>
-            <a href="history.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="text-xs">History</span>
+            <a href="log.html" class="nav-item active">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Profile
             </a>
         </div>
     </nav>
@@ -94,10 +86,8 @@
         const dia = document.getElementById('diastolic').value;
         const pulse = document.getElementById('pulse').value;
         const notes = document.getElementById('notes').value;
-
         if (sys < 40 || sys > 300) { showFlash('Systolic must be 40-300', 'error'); return; }
         if (dia < 20 || dia > 200) { showFlash('Diastolic must be 20-200', 'error'); return; }
-
         DB.addReading(sys, dia, pulse, notes);
         const bp = classifyBP(parseInt(sys), parseInt(dia));
         showFlash(`Logged ${sys}/${dia} — ${bp.label}`);

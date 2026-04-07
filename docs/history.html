@@ -5,40 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>History — BP Helper</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
-        .nav-item.active { color: #6366f1; }
-        .nav-item.active svg { stroke: #6366f1; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex flex-col">
-    <main class="flex-1 pb-20 px-4 pt-4 max-w-lg mx-auto w-full">
-        <div class="space-y-5">
-            <h1 class="text-xl font-bold">History</h1>
+<body>
+    <main>
+        <div class="space-y">
+            <h1 style="font-size:22px;font-weight:700">History</h1>
             <div id="readings-section"></div>
             <div id="sessions-section"></div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 safe-bottom z-50">
-        <div class="max-w-lg mx-auto flex justify-around py-2">
-            <a href="index.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
-                <span class="text-xs">Home</span>
+    <a href="log.html" class="fab">+</a>
+
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                Home
             </a>
-            <a href="log.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                <span class="text-xs">Log BP</span>
+            <a href="breathe.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
+                Breathe
             </a>
-            <a href="breathe.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
-                <span class="text-xs">Breathe</span>
+            <span class="nav-item" style="width:56px"></span>
+            <a href="history.html" class="nav-item active">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                History
             </a>
-            <a href="history.html" class="nav-item active flex flex-col items-center gap-0.5 px-3 py-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="text-xs">History</span>
+            <a href="log.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Profile
             </a>
         </div>
     </nav>
@@ -49,39 +46,43 @@
         const readings = DB.getReadings(100);
         const sessions = DB.getSessions(50);
 
-        let rhtml = `<div class="flex items-center justify-between mb-2">
-            <span class="text-xs text-gray-500 uppercase tracking-wider">BP Readings</span>
-            <span class="text-xs text-gray-600">${readings.length} total</span></div>`;
+        let rhtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">BP Readings</span>
+            <span style="font-size:12px;color:var(--text-light)">${readings.length} total</span></div>`;
 
         if (readings.length) {
-            rhtml += '<div class="space-y-2">';
+            rhtml += '<div class="card">';
             for (const r of readings) {
                 const bp = classifyBP(r.systolic, r.diastolic);
-                rhtml += `<div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800">
-                    <div class="flex items-center justify-between">
-                        <div><span class="text-lg font-semibold tabular-nums">${r.systolic}/${r.diastolic}</span>
-                        ${r.pulse ? `<span class="text-sm text-gray-500 ml-2">${r.pulse} bpm</span>` : ''}</div>
-                        <span class="text-xs px-2 py-0.5 rounded-full" style="background:${bp.color}20;color:${bp.color}">${bp.label}</span>
+                rhtml += `<div class="reading-row">
+                    <div>
+                        <span style="font-size:18px;font-weight:700" class="tabular">${r.systolic}/${r.diastolic}</span>
+                        ${r.pulse ? `<span class="text-muted" style="font-size:13px;margin-left:8px">${r.pulse} bpm</span>` : ''}
+                        ${r.notes ? `<div class="text-muted" style="font-size:12px;margin-top:2px">${r.notes}</div>` : ''}
                     </div>
-                    <div class="flex justify-between mt-1">
-                        ${r.notes ? `<span class="text-xs text-gray-500">${r.notes}</span>` : '<span></span>'}
-                        <span class="text-xs text-gray-600 ml-auto">${fmtDate(r.created_at)}</span>
-                    </div></div>`;
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                        <span class="tag" style="background:${bp.bg};color:${bp.color}">${bp.label}</span>
+                        <span class="text-light" style="font-size:11px">${fmtDate(r.created_at)}</span>
+                    </div>
+                </div>`;
             }
             rhtml += '</div>';
         } else {
-            rhtml += `<div class="bg-gray-900 rounded-xl p-6 border border-gray-800 text-center text-sm text-gray-500">
-                No readings yet. <a href="log.html" class="text-indigo-400">Log your first.</a></div>`;
+            rhtml += `<div class="card text-center" style="padding:32px;font-size:14px;color:var(--text-muted)">
+                No readings yet. <a href="log.html" style="color:#5b8def;font-weight:600">Log your first.</a></div>`;
         }
         document.getElementById('readings-section').innerHTML = rhtml;
 
         if (sessions.length) {
-            let shtml = '<div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Breathing Sessions</div><div class="space-y-2">';
+            let shtml = '<div style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:8px">Breathing Sessions</div><div class="card">';
             for (const s of sessions) {
-                shtml += `<div class="bg-gray-900 rounded-xl px-4 py-3 border border-gray-800 flex items-center justify-between">
-                    <div><span class="text-sm font-medium">${s.exercise_type}</span>
-                    <span class="text-xs text-gray-500 ml-2">${(s.duration_seconds/60).toFixed(1)} min</span></div>
-                    <span class="text-xs text-gray-600">${fmtDate(s.created_at)}</span></div>`;
+                shtml += `<div class="reading-row">
+                    <div>
+                        <span style="font-size:15px;font-weight:600">${s.exercise_type}</span>
+                        <span class="text-muted" style="font-size:13px;margin-left:8px">${(s.duration_seconds/60).toFixed(1)} min</span>
+                    </div>
+                    <span class="text-light" style="font-size:12px">${fmtDate(s.created_at)}</span>
+                </div>`;
             }
             shtml += '</div>';
             document.getElementById('sessions-section').innerHTML = shtml;

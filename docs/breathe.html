@@ -4,95 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Breathing Exercises — BP Helper</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
-        .nav-item.active { color: #6366f1; }
-        .nav-item.active svg { stroke: #6366f1; }
-        @keyframes breathe-in { from { transform: scale(0.6); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
-        @keyframes breathe-out { from { transform: scale(1); opacity: 1; } to { transform: scale(0.6); opacity: 0.4; } }
-        @keyframes breathe-hold { 0%,100% { transform: scale(1); } }
-    </style>
+    <title>Breathe — BP Helper</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex flex-col">
-    <main class="flex-1 pb-20 px-4 pt-4 max-w-lg mx-auto w-full">
-        <div id="flash" class="hidden"></div>
-        <div id="list-view" class="space-y-5">
+<body>
+    <main>
+        <div id="flash" style="display:none"></div>
+
+        <!-- Exercise list -->
+        <div id="list-view" class="space-y">
             <div>
-                <h1 class="text-xl font-bold">Breathing Exercises</h1>
-                <p class="text-sm text-gray-400 mt-1">Clinically proven techniques to lower blood pressure</p>
+                <h1 style="font-size:22px;font-weight:700">Breathing Exercises</h1>
+                <p class="text-muted" style="font-size:14px;margin-top:4px">Clinically proven techniques to lower blood pressure</p>
             </div>
-            <div id="exercise-list" class="space-y-3"></div>
-            <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50 text-xs text-gray-500 leading-relaxed">
-                <strong class="text-gray-400">Science note:</strong> Slow breathing at ~6 breaths/min activates the baroreflex,
+            <div id="exercise-list" class="space-y"></div>
+            <div class="card-sm" style="opacity:0.8;font-size:13px;line-height:1.6;color:var(--text-muted)">
+                <strong style="color:var(--text)">Science note:</strong> Slow breathing at ~6 breaths/min activates the baroreflex,
                 increasing vagal tone and reducing sympathetic nervous system activity. Multiple clinical trials show
                 5-10 mmHg systolic BP reduction with regular practice.
             </div>
         </div>
 
-        <div id="timer-view" class="hidden">
-            <div class="flex flex-col items-center justify-center min-h-[70vh] space-y-6">
+        <!-- Timer -->
+        <div id="timer-view" style="display:none">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:75vh;gap:24px">
                 <div class="text-center">
-                    <h1 id="ex-name" class="text-lg font-bold"></h1>
-                    <p class="text-xs text-gray-500 mt-1" id="status-text">Tap to begin</p>
+                    <h1 id="ex-name" style="font-size:20px;font-weight:700"></h1>
+                    <p id="status-text" class="text-muted" style="font-size:13px;margin-top:4px">Tap to begin</p>
                 </div>
 
-                <div class="relative flex items-center justify-center" style="width:260px;height:260px;">
-                    <svg class="absolute inset-0" viewBox="0 0 260 260">
-                        <circle cx="130" cy="130" r="120" fill="none" stroke="#1f2937" stroke-width="4"/>
-                        <circle id="progress-ring" cx="130" cy="130" r="120" fill="none" stroke="#6366f1"
-                            stroke-width="4" stroke-linecap="round"
-                            stroke-dasharray="754" stroke-dashoffset="754"
-                            transform="rotate(-90 130 130)" style="transition:stroke-dashoffset 0.3s linear;"/>
+                <div style="position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center">
+                    <svg style="position:absolute;inset:0" viewBox="0 0 240 240">
+                        <circle cx="120" cy="120" r="108" fill="none" stroke="#e0e6f0" stroke-width="6"/>
+                        <circle id="progress-ring" cx="120" cy="120" r="108" fill="none" stroke="#5b8def"
+                            stroke-width="6" stroke-linecap="round"
+                            stroke-dasharray="679" stroke-dashoffset="679"
+                            transform="rotate(-90 120 120)" style="transition:stroke-dashoffset 0.3s linear;"/>
                     </svg>
-                    <div id="breathe-circle"
-                         class="w-40 h-40 rounded-full bg-indigo-600/20 border-2 border-indigo-500/40 flex items-center justify-center transition-all">
+                    <div id="breathe-circle" class="breathe-circle"
+                         style="background:rgba(91,141,239,0.12);border:3px solid rgba(91,141,239,0.25)">
                         <div class="text-center">
-                            <div id="phase-text" class="text-2xl font-bold">Ready</div>
-                            <div id="timer-text" class="text-4xl font-bold tabular-nums mt-1">0</div>
+                            <div id="phase-text" style="font-size:22px;font-weight:700;color:var(--text)">Ready</div>
+                            <div id="timer-text" style="font-size:44px;font-weight:700;color:var(--text)" class="tabular">0</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="text-center text-sm text-gray-500 tabular-nums">
+                <div class="text-muted tabular" style="font-size:14px">
                     Cycle <span id="cycle-current">0</span> / <span id="cycle-total">0</span>
                 </div>
 
-                <button id="start-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-3 rounded-xl font-medium transition active:scale-[0.98]">
-                    Start
-                </button>
+                <button id="start-btn" class="btn-accent" style="width:auto;padding:14px 48px">Start</button>
 
-                <div id="complete-panel" class="hidden text-center space-y-4">
-                    <div class="text-2xl font-bold text-green-400">Session Complete</div>
-                    <p class="text-sm text-gray-400">Great work. Consistent practice lowers BP over time.</p>
-                    <div class="flex gap-3 justify-center">
-                        <button onclick="resetTimer()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2.5 rounded-xl text-sm transition">Again</button>
-                        <button onclick="showList()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm transition">Exercises</button>
+                <div id="complete-panel" style="display:none" class="text-center space-y">
+                    <div style="font-size:24px;font-weight:700;color:#16a34a">Session Complete</div>
+                    <p class="text-muted" style="font-size:14px">Great work. Consistent practice lowers BP over time.</p>
+                    <div style="display:flex;gap:12px;justify-content:center">
+                        <button onclick="resetTimer()" class="btn-secondary" style="width:auto;padding:12px 24px;font-size:14px">Again</button>
+                        <button onclick="showList()" class="btn-accent" style="width:auto;padding:12px 24px;font-size:14px">Exercises</button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 safe-bottom z-50">
-        <div class="max-w-lg mx-auto flex justify-around py-2">
-            <a href="index.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
-                <span class="text-xs">Home</span>
+    <a href="log.html" class="fab">+</a>
+
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                Home
             </a>
-            <a href="log.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                <span class="text-xs">Log BP</span>
+            <a href="breathe.html" class="nav-item active">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
+                Breathe
             </a>
-            <a href="breathe.html" class="nav-item active flex flex-col items-center gap-0.5 px-3 py-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.58 2 11a7.5 7.5 0 004 6.65V21l3.5-2.14A10.8 10.8 0 0012 19c5.5 0 10-3.58 10-8s-4.5-8-10-8z"/></svg>
-                <span class="text-xs">Breathe</span>
+            <span class="nav-item" style="width:56px"></span>
+            <a href="history.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                History
             </a>
-            <a href="history.html" class="nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="text-xs">History</span>
+            <a href="log.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Profile
             </a>
         </div>
     </nav>
@@ -107,28 +102,28 @@
         "imst": { name: "IMST Style", description: "Sharp inhale 5s with resistance, slow exhale 5s. Based on Inspiratory Muscle Strength Training research.", inhale: 5, hold: 2, exhale: 5, cycles: 6, category: "bp-reduction" }
     };
 
-    const catColors = {
-        'bp-reduction': 'bg-red-900/40 text-red-400',
-        'relaxation': 'bg-purple-900/40 text-purple-400',
-        'focus': 'bg-blue-900/40 text-blue-400',
-        'hrv': 'bg-green-900/40 text-green-400'
+    const catStyle = {
+        'bp-reduction': { bg: 'rgba(239,68,68,0.1)', color: '#dc2626' },
+        'relaxation': { bg: 'rgba(168,85,247,0.1)', color: '#9333ea' },
+        'focus': { bg: 'rgba(59,130,246,0.1)', color: '#2563eb' },
+        'hrv': { bg: 'rgba(34,197,94,0.1)', color: '#16a34a' }
     };
 
     let currentEx = null, running = false, abortCtrl = null;
-    const CIRC = 2 * Math.PI * 120;
+    const CIRC = 2 * Math.PI * 108;
 
-    // Render exercise list
     function renderList() {
         let html = '';
         for (const [id, ex] of Object.entries(EXERCISES)) {
-            html += `<a href="#" onclick="startExercise('${id}');return false"
-                class="block bg-gray-900 rounded-2xl p-4 border border-gray-800 hover:border-gray-700 transition active:scale-[0.99]">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="font-medium">${ex.name}</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full ${catColors[ex.category]}">${ex.category.replace('-',' ').replace(/\b\w/g,c=>c.toUpperCase())}</span>
+            const cat = catStyle[ex.category];
+            const catLabel = ex.category.replace('-',' ').replace(/\b\w/g,c=>c.toUpperCase());
+            html += `<a href="#" onclick="startExercise('${id}');return false" class="exercise-card card-sm" style="display:block">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                    <span style="font-size:16px;font-weight:600">${ex.name}</span>
+                    <span class="tag" style="background:${cat.bg};color:${cat.color}">${catLabel}</span>
                 </div>
-                <p class="text-xs text-gray-400 leading-relaxed">${ex.description}</p>
-                <div class="mt-2 flex gap-3 text-xs text-gray-500">
+                <p class="text-muted" style="font-size:13px;line-height:1.5">${ex.description}</p>
+                <div style="margin-top:8px;display:flex;gap:12px;font-size:12px;color:var(--text-light)">
                     <span>In: ${ex.inhale}s</span>
                     ${ex.hold ? `<span>Hold: ${ex.hold}s</span>` : ''}
                     <span>Out: ${ex.exhale}s</span>
@@ -142,15 +137,15 @@
     function showList() {
         if (running && abortCtrl) abortCtrl.abort();
         running = false;
-        document.getElementById('list-view').classList.remove('hidden');
-        document.getElementById('timer-view').classList.add('hidden');
+        document.getElementById('list-view').style.display = '';
+        document.getElementById('timer-view').style.display = 'none';
     }
 
     function startExercise(id) {
         currentEx = EXERCISES[id];
         if (!currentEx) return;
-        document.getElementById('list-view').classList.add('hidden');
-        document.getElementById('timer-view').classList.remove('hidden');
+        document.getElementById('list-view').style.display = 'none';
+        document.getElementById('timer-view').style.display = '';
         document.getElementById('ex-name').textContent = currentEx.name;
         document.getElementById('cycle-total').textContent = currentEx.cycles;
         resetTimer();
@@ -164,12 +159,13 @@
         document.getElementById('status-text').textContent = 'Tap to begin';
         document.getElementById('cycle-current').textContent = '0';
         document.getElementById('start-btn').textContent = 'Start';
-        document.getElementById('start-btn').classList.remove('hidden');
-        document.getElementById('complete-panel').classList.add('hidden');
+        document.getElementById('start-btn').style.display = '';
+        document.getElementById('complete-panel').style.display = 'none';
         document.getElementById('progress-ring').style.strokeDashoffset = CIRC;
-        const circle = document.getElementById('breathe-circle');
-        circle.style.animation = '';
-        circle.className = 'w-40 h-40 rounded-full bg-indigo-600/20 border-2 border-indigo-500/40 flex items-center justify-center transition-all';
+        const c = document.getElementById('breathe-circle');
+        c.style.animation = '';
+        c.style.background = 'rgba(91,141,239,0.12)';
+        c.style.borderColor = 'rgba(91,141,239,0.25)';
     }
 
     function sleep(ms, signal) {
@@ -198,7 +194,7 @@
                 const phase = phases[p];
                 document.getElementById('phase-text').textContent = phase.name;
                 circle.style.animation = 'none';
-                circle.offsetHeight; // reflow
+                circle.offsetHeight;
                 circle.style.animation = phase.anim;
 
                 for (let s = phase.dur; s > 0; s--) {
@@ -213,14 +209,15 @@
         const secs = Math.round((Date.now() - start) / 1000);
         DB.addSession(ex.name, secs);
         running = false;
-        document.getElementById('start-btn').classList.add('hidden');
-        document.getElementById('complete-panel').classList.remove('hidden');
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('complete-panel').style.display = '';
         document.getElementById('phase-text').textContent = 'Done';
         document.getElementById('timer-text').textContent = '';
         document.getElementById('status-text').textContent = `${Math.round(secs/60)} min session`;
         document.getElementById('progress-ring').style.strokeDashoffset = 0;
         circle.style.animation = '';
-        circle.className = 'w-40 h-40 rounded-full bg-green-600/20 border-2 border-green-500/40 flex items-center justify-center transition-all';
+        circle.style.background = 'rgba(34,197,94,0.12)';
+        circle.style.borderColor = 'rgba(34,197,94,0.25)';
     }
 
     document.getElementById('start-btn').addEventListener('click', function() {
@@ -228,12 +225,11 @@
         running = true;
         this.textContent = 'Stop';
         document.getElementById('status-text').textContent = 'Follow the circle';
-        document.getElementById('complete-panel').classList.add('hidden');
+        document.getElementById('complete-panel').style.display = 'none';
         abortCtrl = new AbortController();
         runBreathing(abortCtrl.signal).catch(e => { if (e.name !== 'AbortError') console.error(e); });
     });
 
-    // Check URL param for direct exercise launch
     const params = new URLSearchParams(location.search);
     const exParam = params.get('ex');
     if (exParam && EXERCISES[exParam]) {
